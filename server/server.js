@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
-
+var {generateMessage} = require('./utils/message');
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
@@ -24,20 +24,13 @@ io.on('connection', (socket) => {
 
 
   //socket.broadcast.emit ==> sent to all connected send success and the new user is connected
-  socket.broadcast.emit('newMessage', {
-    from: 'Admin',
-    text: 'New user joined',
-    createdAt: new Date().getTime()
-  });
+  socket.broadcast.emit('newMessage', generateMessage('Admin','New user joined'));
 
   // recieve from clide
   socket.on('createMessage', (message) => {
-    console.log('createMessage', message);
-    io.emit('newMessage', {
-      from: message.from,
-      text: message.text +"Brodcast",
-      createdAt: new Date().getTime()
-    });
+    
+    // brodcast to all opened channels
+    io.emit('newMessage',generateMessage(message.from,message.text));
     
   });
 
