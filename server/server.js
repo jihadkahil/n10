@@ -27,11 +27,11 @@ io.on('connection', (socket) => {
   socket.broadcast.emit('newMessage', generateMessage('Admin','New user joined'));
 
   // recieve from clide
-  socket.on('createMessage', (message) => {
+  socket.on('createMessage', (message,callback) => {
     
     // brodcast to all opened channels
     io.emit('newMessage',generateMessage(message.from,message.text));
-    
+    callback('this is from server');
   });
 
   
