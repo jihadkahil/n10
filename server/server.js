@@ -3,38 +3,31 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
-var {generateMessage} = require('./utils/message');
+
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
- 
+  console.log('New user connected');
 
-    //after user get it's connection from server side
-    // the server will emit for the user this messages
-  socket.emit('newMessage', {
-    from: 'John',
-    text: 'See you then',
-    createdAt: 123123
+  socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
+
+  socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
+
+  socket.on('createMessage', (message, callback) => {
+    console.log('createMessage', message);
+    io.emit('newMessage', generateMessage(message.from, message.text));
+    callback('This is from the server.');
   });
 
-
-  //socket.broadcast.emit ==> sent to all connected send success and the new user is connected
-  socket.broadcast.emit('newMessage', generateMessage('Admin','New user joined'));
-
-  // recieve from clide
-  socket.on('createMessage', (message,callback) => {
-    
-    // brodcast to all opened channels
-    io.emit('newMessage',generateMessage(message.from,message.text));
-    callback('this is from server');
+  socket.on('createLocationMessage', (coords) => {
+    io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
   });
-
-  
 
   socket.on('disconnect', () => {
     console.log('User was disconnected');
