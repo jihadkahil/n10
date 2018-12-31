@@ -38,9 +38,9 @@ class Users {
 
 
 
-    getUser(id)
+    getUser(id_)
     {
-        return this.users.filter((user)=>user.id === id);       
+        return this.users.filter((user)=>user.id === id_);       
     }
 
     removeUser (id) {
